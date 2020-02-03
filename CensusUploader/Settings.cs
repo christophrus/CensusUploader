@@ -149,12 +149,20 @@ namespace CensusUploader
 
         private void fileSystemWatcher1_Renamed(object sender, System.IO.RenamedEventArgs e)
         {
-            var split = e.Name.Split('\\');
-            var second = split[1];
-            var last = split[split.Length - 1];
-            if (second == "SavedVariables" && last == "CensusPlusClassic.lua")
+            try
             {
-                uploadCensus(e.FullPath);
+                fileSystemWatcher1.EnableRaisingEvents = false;
+                var split = e.Name.Split('\\');
+                var second = split[1];
+                var last = split[split.Length - 1];
+                if (second == "SavedVariables" && last == "CensusPlusClassic.lua")
+                {
+                    uploadCensus(e.FullPath);
+                }
+            }
+            finally
+            {
+                fileSystemWatcher1.EnableRaisingEvents = true;
             }
         }
 
