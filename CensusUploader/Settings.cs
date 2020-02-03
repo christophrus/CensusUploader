@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Web;
 using System.Collections.Specialized;
+using System.Reflection;
 
 namespace CensusUploader
 {
@@ -31,6 +32,7 @@ namespace CensusUploader
         private void Settings_Load(object sender, EventArgs e)
         {
 
+            checkUpdate();
             checkRunAtStartup();
 
             if (settings.LastUpload != "")
@@ -236,6 +238,28 @@ namespace CensusUploader
             {
                 registryKey.DeleteValue("CensusUploader", false);
             }
+        }
+
+        private void checkUpdate()
+        {
+            WebClient client = new WebClient();
+            client.Headers.Add("User-Agent", "CensusUploader");
+            String response = client.DownloadString("https://api.github.com/repos/christophrus/CensusUploader/releases/latest");
+            GithubJson json = JsonConvert.DeserializeObject<GithubJson>(response);
+            String currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+            if (json.tag_name != "v" + currentVersion)
+            {
+                DialogResult result = MessageBox.Show(this, "There is a new version of CensusUploader available. Do you wanna open the download website?", "CensusUploader", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (result == DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("https://github.com/christophrus/CensusUploader/releases/latest");
+                }
+            }
+        }
+
+        private class GithubJson
+        {
+            public String tag_name { get; set; }
         }
 
 
