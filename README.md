@@ -7,3 +7,6 @@
 
 This is a simple background program that stays in tray and watches for changes of CensusPlusClassic.lua from the [CensusPlusClassic](https://github.com/christophrus/CensusPlusClassic) WoW Classic interface addon.
 When it detects a change, it automatically uploads the file to [wowclassicpopulation.com](https://wowclassicpopulation.com) where it gets processed and aggregated into a database.
+
+## Where can I get the compiled version?
+Click the Releases button in the header above or go to https://github.com/christophrus/CensusUploader/releases directly
