@@ -157,6 +157,11 @@ namespace CensusUploader
                 var last = split[split.Length - 1];
                 if (second == "SavedVariables" && last == "CensusPlusClassic.lua")
                 {
+                    long size = new FileInfo(e.FullPath).Length;
+                    if (size > 3145728)
+                    {
+                        MessageBox.Show("Your CensusPlusClassic.lua is greater than 3 MB. Please consider using the prune/purge button within the addon.", "CensusUploader", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                     uploadCensus(e.FullPath);
                 }
             }
@@ -250,19 +255,22 @@ namespace CensusUploader
 
         private void checkUpdate()
         {
-            WebClient client = new WebClient();
-            client.Headers.Add("User-Agent", "CensusUploader");
-            String response = client.DownloadString("https://api.github.com/repos/christophrus/CensusUploader/releases/latest");
-            GithubJson json = JsonConvert.DeserializeObject<GithubJson>(response);
-            String currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
-            if (json.tag_name != "v" + currentVersion)
+            try
             {
-                DialogResult result = MessageBox.Show(this, "There is a new version of CensusUploader available. Do you wanna open the download website?", "CensusUploader", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                if (result == DialogResult.Yes)
+                WebClient client = new WebClient();
+                client.Headers.Add("User-Agent", "CensusUploader");
+                String response = client.DownloadString("https://api.github.com/repos/christophrus/CensusUploader/releases/latest");
+                GithubJson json = JsonConvert.DeserializeObject<GithubJson>(response);
+                String currentVersion = Assembly.GetEntryAssembly().GetName().Version.ToString();
+                if (json.tag_name != "v" + currentVersion)
                 {
-                    System.Diagnostics.Process.Start("https://github.com/christophrus/CensusUploader/releases/latest");
+                    DialogResult result = MessageBox.Show(this, "There is a new version of CensusUploader available. Do you wanna open the download website?", "CensusUploader", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                    if (result == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start("https://github.com/christophrus/CensusUploader/releases/latest");
+                    }
                 }
-            }
+            } catch { }
         }
 
         private class GithubJson
