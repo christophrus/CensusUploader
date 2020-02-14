@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.Web;
 using System.Collections.Specialized;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace CensusUploader
 {
@@ -278,10 +279,32 @@ namespace CensusUploader
             public String tag_name { get; set; }
         }
 
+        /// <summary>
+        /// Checks if upload is due for specific file.
+        /// </summary>
+        /// <param name="filePath">Path to "CensusPlusClassic.lua" file.</param>
+        /// <returns>True if upload is due, else false.</returns>
+        private bool uploadIsDue(string filePath)
+        {
+            return lastUpload[filePath] == null ||
+                DateTime.Compare(((DateTime)lastUpload[filePath]).AddMinutes(settings.UploadTreshold), DateTime.Now) < 0;
+        }
+
+        /// <summary>
+        /// Checks if the CensusPlus lua file contains any data.
+        /// </summary>
+        /// <param name="filePath">Path to "CensusPlusClassic.lua" file.</param>
+        /// <returns>True, if file contains census data, else false.</returns>
+        private bool containsCensusData(string filePath)
+        {
+            string fileContent = File.ReadAllText(filePath);
+            string pattern = "\\[\"TimesPlus\"\\]\\s*=\\s*{\\s*\\}"; //Matches empty TimesPlus object
+            return !Regex.IsMatch(fileContent, pattern);
+        }
 
         private void uploadCensus(string filePath)
         {
-            if (lastUpload[filePath] == null || DateTime.Compare(((DateTime)lastUpload[filePath]).AddMinutes(settings.UploadTreshold), DateTime.Now) < 0)
+            if (uploadIsDue(filePath) && containsCensusData(filePath))
             {
                 lastUpload[filePath] = DateTime.Now;
                 stats["lastUpload"] = DateTime.Now;
