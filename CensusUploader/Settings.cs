@@ -347,5 +347,10 @@ namespace CensusUploader
         {
             settings.RunAtStartup = cbAtStartup.Checked;
         }
+
+        private void notifyIcon1_DoubleClick(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Normal;
+        }
     }
 }
